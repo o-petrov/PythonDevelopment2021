@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox as mbox
 from itertools import product
 from random import shuffle
 
@@ -6,6 +7,7 @@ from random import shuffle
 class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
+        self.master.title('Feefteen')
         self.rows=4
         self.cols=4
         self.buttons=self.rows*self.cols-1
@@ -46,10 +48,24 @@ class Application(tk.Frame):
             if rb == re and (cb == ce+1 or cb == ce-1) or cb == ce and (rb == re+1 or rb == re-1):
                 button.grid(row=re, column=ce)
                 self.empty_pos = rb, cb
+                if self.win():
+                    self.victory()
         return f
 
+    def win(self):
+        for b in self.button:
+            # number on button
+            lbl = int(b['text']) - 1
+            # number of button position
+            pos = self.cols * (b.grid_info()['row'] - 1) + b.grid_info()['column']
+            if lbl != pos:
+                return False
+        return True
+
+    def victory(self):
+        mbox.showinfo("Victory", "You win!")
+        self.new_game()
 
 if (__name__ == "__main__"):
     app = Application()
-    app.master.title('Пятнашки')
     app.mainloop()
