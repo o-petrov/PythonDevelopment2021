@@ -9,7 +9,6 @@ class Application(tk.Frame):
         self.rows=4
         self.cols=4
         self.buttons=self.rows*self.cols-1
-        self.pos = list(product(range(1, self.rows+1), range(self.cols)))
         self.create_widgets()
         self.grid_reconfigure()
         self.new_game()
@@ -20,6 +19,8 @@ class Application(tk.Frame):
         self.exit = tk.Button(self, text='Exit', command=self.quit)
         self.exit.grid(row=0, column=2, columnspan=2)
         self.button = [tk.Button(self, text=str(i+1)) for i in range(self.buttons)]
+        for b in self.button:
+            b.configure(command=self.move(b))
 
     def grid_reconfigure(self):
         self.master.rowconfigure(0, weight=1)
@@ -32,9 +33,20 @@ class Application(tk.Frame):
             self.columnconfigure(i, weight=1)
 
     def new_game(self):
-        shuffle(self.pos)
-        for b, (r, c) in zip(self.button, self.pos):
+        pos = list(product(range(1, self.rows+1), range(self.cols)))
+        shuffle(pos)
+        for b, (r, c) in zip(self.button, pos):
             b.grid(row=r, column=c, sticky="NSEW")
+        self.empty_pos = pos[-1]
+
+    def move(self, button):
+        def f():
+            re, ce = self.empty_pos
+            rb, cb = button.grid_info()['row'], button.grid_info()['column']
+            if rb == re and (cb == ce+1 or cb == ce-1) or cb == ce and (rb == re+1 or rb == re-1):
+                button.grid(row=re, column=ce)
+                self.empty_pos = rb, cb
+        return f
 
 
 if (__name__ == "__main__"):
